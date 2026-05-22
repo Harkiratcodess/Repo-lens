@@ -1,28 +1,44 @@
 {
   "name": "repo-lens",
-  "displayName": "Repo Lens",
-  "description": "A VS Code extension that scans a repository and generates a Markdown summary.",
-  "version": "0.0.1",
-  "publisher": "your-publisher-name",
-  "engines": {
-    "vscode": "^1.90.0"
-  },
-  "main": "extension.js",
-  "activationEvents": [
-    "onCommand:repoLens.generateReport"
-  ],
+  "displayName": "RepoLens",
+  "description": "Instantly understand any codebase — RepoLens maps every file and folder so you can contribute with confidence.",
+  "version": "1.0.0",
+  "engines": { "vscode": "^1.74.0" },
+  "categories": ["Other"],
+  "activationEvents": [],
+  "main": "./extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "repoLens.generateReport",
-        "title": "Repo Lens: Generate Repository Report"
+        "command": "repo-lens.analyze",
+"title": "RepoLens: Analyze Codebase"
       }
-    ]
+    ],
+    "configuration": {
+      "title": "RepoLens",
+      "properties": {
+        "codemap.geminiApiKey": {
+          "type": "string",
+          "default": "",
+          "description": "Your free Gemini API key from https://aistudio.google.com"
+        },
+        "codemap.ignoreFolders": {
+          "type": "array",
+          "default": ["node_modules", ".git", "dist", "build", ".next", "out", "coverage", ".cache", "vendor"],
+          "description": "Folders to skip during analysis"
+        },
+        "codemap.maxFileSizeKB": {
+          "type": "number",
+          "default": 100,
+          "description": "Skip files larger than this size (in KB)"
+        }
+      }
+    }
   },
   "scripts": {
-    "test": "echo \"No tests configured\""
+    "vscode:prepublish": "echo ready"
   },
   "devDependencies": {
-    "@types/vscode": "^1.90.0"
+    "@types/vscode": "^1.74.0"
   }
 }
