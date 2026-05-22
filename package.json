@@ -1,0 +1,28 @@
+{
+  "name": "repo-lens",
+  "displayName": "Repo Lens",
+  "description": "A VS Code extension that scans a repository and generates a Markdown summary.",
+  "version": "0.0.1",
+  "publisher": "your-publisher-name",
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "main": "extension.js",
+  "activationEvents": [
+    "onCommand:repoLens.generateReport"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "repoLens.generateReport",
+        "title": "Repo Lens: Generate Repository Report"
+      }
+    ]
+  },
+  "scripts": {
+    "test": "echo \"No tests configured\""
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.90.0"
+  }
+}
