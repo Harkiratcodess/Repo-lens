@@ -103,14 +103,16 @@ async function analyzeWithAI(fileTree, apiKey, onProgress, rootPath) {
         const responseText = await askGemini(apiKey, folderPath, files);
         const parsed = parseAIResponse(responseText);
         results[folderPath] = parsed;
-        cache[folderHash] = parsed;
+        cache[folderHash] = parsed; // ✅ only caches on success
       } catch (err) {
-        console.error(`[CodeMap] Failed: "${folderPath}":`, err.message);
-        results[folderPath] = {};
-        for (const f of files) {
-          results[folderPath][f.name] = '(re-run to retry)';
-        }
-      }
+  console.error(`[CodeMap] Failed: "${folderPath}":`, err.message);
+  results[folderPath] = {};
+  for (const f of files) {
+    results[folderPath][f.name] = '(re-run to retry)';
+  }
+  // DON'T cache failures — so next run retries them
+  // cache[folderHash] = parsed; <- this was the bug
+}
     }
 
     // One delay per batch instead of per folder

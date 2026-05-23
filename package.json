@@ -2,7 +2,7 @@
   "name": "repo-lens",
   "displayName": "RepoLens - Codebase Navigator",
   "description": "Instantly understand any codebase — RepoLens maps every file and folder so you can contribute with confidence.",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "publisher": "Harkiratcodess",
   "engines": {
     "vscode": "^1.74.0"
