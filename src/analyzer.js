@@ -3,9 +3,6 @@ const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 
-// Cache file lives in the project root as .codemap-cache.json
-// Stores: { folderHash -> aiSummary }
-// This means we only re-analyze folders that actually changed — saves free API quota
 let cacheFilePath = null;
 let cache = {};
 
@@ -29,10 +26,6 @@ function saveCache() {
   }
 }
 
-/**
- * Creates a hash of a folder's file contents.
- * If files haven't changed, hash stays the same → skip AI call → use cache.
- */
 function hashFolder(files) {
   const combined = files.map(f => f.relativePath + f.content).join('||');
   return crypto.createHash('md5').update(combined).digest('hex');
@@ -54,7 +47,6 @@ function parseAIResponse(responseText) {
       continue;
     }
 
-    // Try loose format: **filename.ext** — description
     const loose = line.match(/\*\*(.+?\.\w+)\*\*\s*[—\-:]\s*(.+)/);
     if (loose) {
       result[loose[1].trim()] = loose[2].trim();
@@ -103,7 +95,7 @@ async function analyzeWithAI(fileTree, apiKey, onProgress, rootPath) {
         const responseText = await askGemini(apiKey, folderPath, files);
         const parsed = parseAIResponse(responseText);
         results[folderPath] = parsed;
-        cache[folderHash] = parsed; // ✅ only caches on success
+        cache[folderHash] = parsed; //  only caches on success
    } catch (err) {
   // If rate limited, wait the exact time Groq tells us then retry
   if (err.waitSeconds) {
