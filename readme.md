@@ -77,6 +77,15 @@ After the first run a `.codemap-cache.json` file is created. On the next run:
 - **Changed folder** → re-analyzed with AI
 
 Re-runs are fast and barely use any free quota.
+## Project size guide
+
+| Project size | Files | Works? |
+|---|---|---|
+| Small | < 50 files | ✅ Perfectly |
+| Medium | 50-200 files | ✅ Most files analyzed |
+| Large | 200+ files | ⚠️ Re-run a few times, cache handles the rest |
+
+**Tip:** If you see "(re-run to retry)" on any file, just run `RepoLens: Analyze Codebase` again. Already analyzed files load from cache instantly — only failed ones get retried.
 
 ---
 

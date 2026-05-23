@@ -83,7 +83,7 @@ async function analyzeWithAI(fileTree, apiKey, onProgress, rootPath) {
   let done = 0;
 
   // Process 4 folders per API call instead of 1
-  const BATCH_SIZE = 4;
+  const BATCH_SIZE = 2;
 
   for (let i = 0; i < folders.length; i += BATCH_SIZE) {
     const batch = folders.slice(i, i + BATCH_SIZE);
@@ -114,7 +114,7 @@ async function analyzeWithAI(fileTree, apiKey, onProgress, rootPath) {
     }
 
     // One delay per batch instead of per folder
-    if (i + BATCH_SIZE < folders.length) await sleep(2000);
+    if (i + BATCH_SIZE < folders.length) await sleep(3000);
   }
 
   saveCache();
