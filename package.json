@@ -2,17 +2,21 @@
   "name": "repo-lens",
   "displayName": "RepoLens - Codebase Navigator",
   "description": "Instantly understand any codebase — RepoLens maps every file and folder so you can contribute with confidence.",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "publisher": "Harkiratcodess",
-  "engines": { "vscode": "^1.74.0" },
-  "categories": ["Other"],
+  "engines": {
+    "vscode": "^1.74.0"
+  },
+  "categories": [
+    "Other"
+  ],
   "activationEvents": [],
   "main": "./extension.js",
   "contributes": {
     "commands": [
       {
         "command": "repo-lens.analyze",
-"title": "RepoLens: Analyze Codebase"
+        "title": "RepoLens: Analyze Codebase"
       }
     ],
     "configuration": {
@@ -25,7 +29,17 @@
         },
         "repolens.ignoreFolders": {
           "type": "array",
-          "default": ["node_modules", ".git", "dist", "build", ".next", "out", "coverage", ".cache", "vendor"],
+          "default": [
+            "node_modules",
+            ".git",
+            "dist",
+            "build",
+            ".next",
+            "out",
+            "coverage",
+            ".cache",
+            "vendor"
+          ],
           "description": "Folders to skip during analysis"
         },
         "repolens.maxFileSizeKB": {
