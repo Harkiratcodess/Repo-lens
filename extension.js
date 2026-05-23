@@ -47,7 +47,7 @@ function activate(context) {
 
           const totalFolders = Object.keys(fileTree).length;
           if (totalFolders === 0) {
-            vscode.window.showWarningMessage('CodeMap: No files found to analyze.');
+            vscode.window.showWarningMessage('RepoLens: No files found to analyze.');
             return;
           }
 
