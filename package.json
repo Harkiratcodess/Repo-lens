@@ -17,17 +17,17 @@
     "configuration": {
       "title": "RepoLens",
       "properties": {
-        "codemap.geminiApiKey": {
+        "repolens.geminiApiKey": {
           "type": "string",
           "default": "",
-          "description": "Your free Gemini API key from https://aistudio.google.com"
+          "description": "Your free Groq API key from https://console.groq.com"
         },
-        "codemap.ignoreFolders": {
+        "repolens.ignoreFolders": {
           "type": "array",
           "default": ["node_modules", ".git", "dist", "build", ".next", "out", "coverage", ".cache", "vendor"],
           "description": "Folders to skip during analysis"
         },
-        "codemap.maxFileSizeKB": {
+        "repolens.maxFileSizeKB": {
           "type": "number",
           "default": 100,
           "description": "Skip files larger than this size (in KB)"

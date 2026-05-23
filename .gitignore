@@ -1,0 +1,6 @@
+node_modules/
+.vscode-test/
+*.vsix
+.codemap-cache.json
+CODEBASE_MAP.md
+.env
