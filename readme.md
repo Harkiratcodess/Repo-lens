@@ -1,55 +1,45 @@
-# Codebase Mapper
+# RepoLens - Codebase Navigator
 
-Analyzes your project and generates a human-readable `CODEBASE_MAP.md` — every file, what it does, in one place.
+> Instantly understand any codebase — RepoLens maps every file and folder so you can contribute with confidence.
 
 Built for open source contributors who need to understand a codebase fast (GSSoC, GSoC, Hacktoberfest, etc.)
 
 ---
 
-## Setup (5 minutes)
+## What it does
 
-### 1. Get a free Gemini API key
-- Go to [aistudio.google.com](https://aistudio.google.com)
-- Sign in with Google → click **Get API Key** → **Create API key**
-- Copy it (it's free, no card needed — 1M tokens/day)
-
-### 2. Add the key to VS Code
-- Open VS Code Settings (`Ctrl+,` or `Cmd+,`)
-- Search for `codemap`
-- Paste your key into **Gemini Api Key**
-
-### 3. Install the extension (local dev)
-```bash
-# Install vsce tool
-npm install -g @vscode/vsce
-
-# Inside this folder
-npm install
-
-# Open in VS Code
-code .
-
-# Press F5 to launch Extension Development Host
-```
+Run one command and RepoLens will:
+- Scan your entire project
+- Analyze every file with AI
+- Generate a `CODEBASE_MAP.md` with a folder index and file-by-file breakdown
+- Open the map automatically in your editor
 
 ---
 
-## Usage
+## Setup (5 minutes)
 
-1. Open any project folder in VS Code
-2. Press `Ctrl+Shift+P` (or `Cmd+Shift+P`)
-3. Type `CodeMap: Analyze Codebase` and hit Enter
-4. Watch the progress bar — analysis runs folder by folder
-5. `CODEBASE_MAP.md` opens automatically when done
+### 1. Get a free Groq API key
+- Go to [console.groq.com](https://console.groq.com)
+- Sign up with Google or email
+- Click **API Keys** → **Create API key**
+- Copy it — it's completely free, no card needed
 
-**On large projects:** The first run takes a few minutes (rate-limited to be nice to the free API).
-Re-runs are instant for unchanged folders thanks to caching.
+### 2. Add the key to VS Code
+- Open VS Code Settings (`Ctrl+,` or `Cmd+,`)
+- Search for `repolens`
+- Paste your key into **Groq Api Key**
+
+### 3. Run it
+- Open any project folder in VS Code
+- Press `Ctrl+Shift+P`
+- Type `RepoLens: Analyze Codebase`
+- Hit Enter and watch the progress bar
 
 ---
 
 ## What you get
 
-```
+```md
 # 🗺️ Codebase Map — my-project
 
 ## 📁 Folder Index
@@ -64,8 +54,8 @@ Re-runs are instant for unchanged folders thanks to caching.
 
 | File | What it does | Size |
 |------|-------------|------|
-| `AuthModal.jsx` | Handles login/signup UI with email and Google OAuth buttons | 4.2 KB |
-| `Navbar.jsx` | Top navigation bar with links, user avatar, and mobile hamburger menu | 2.1 KB |
+| AuthModal.jsx | Handles login/signup UI with email and Google OAuth buttons | 4.2 KB |
+| Navbar.jsx | Top navigation bar with links, user avatar, and mobile hamburger menu | 2.1 KB |
 ```
 
 ---
@@ -74,26 +64,20 @@ Re-runs are instant for unchanged folders thanks to caching.
 
 | Setting | Default | What it does |
 |---------|---------|-------------|
-| `codemap.geminiApiKey` | (empty) | Your free Gemini API key |
-| `codemap.ignoreFolders` | node_modules, .git, dist... | Folders to skip |
-| `codemap.maxFileSizeKB` | 100 | Skip files bigger than this |
-
----
-
-## Add to .gitignore
-
-```
-CODEBASE_MAP.md
-.codemap-cache.json
-```
+| `repolens.groqApiKey` | (empty) | Your free Groq API key |
+| `repolens.ignoreFolders` | node_modules, .git, dist... | Folders to skip |
+| `repolens.maxFileSizeKB` | 100 | Skip files bigger than this |
 
 ---
 
 ## How caching works
 
-Every time you run the analysis, a `.codemap-cache.json` file is created.
-It stores a hash of each folder's contents. On the next run:
+After the first run a `.codemap-cache.json` file is created. On the next run:
 - **Unchanged folder** → loaded from cache instantly, no API call
-- **Changed folder** → re-analyzed with Gemini
+- **Changed folder** → re-analyzed with AI
 
-This means after the first run, re-analysis is fast and barely uses any free quota.
+Re-runs are fast and barely use any free quota.
+
+---
+
+## Add to .gitignore
