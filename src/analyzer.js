@@ -79,34 +79,44 @@ async function analyzeWithAI(fileTree, apiKey, onProgress, rootPath) {
   loadCache(rootPath || process.cwd());
 
   const folders = Object.keys(fileTree);
-  const results = {}; // { folderPath -> { fileName -> summary } }
+  const results = {};
   let done = 0;
-for (const folderPath of folders) {
-  const files = fileTree[folderPath];
-  done++;
-  onProgress(done, folders.length, folderPath);
 
-  const folderHash = hashFolder(files);
-  if (cache[folderHash]) {
-    results[folderPath] = cache[folderHash];
-    continue;
-  }
+  // Process 4 folders per API call instead of 1
+  const BATCH_SIZE = 4;
 
-  try {
-    const responseText = await askGemini(apiKey, folderPath, files);
-    const parsed = parseAIResponse(responseText);
-    results[folderPath] = parsed;
-    cache[folderHash] = parsed;
-  } catch (err) {
-    console.error(`[CodeMap] Failed: "${folderPath}":`, err.message);
-    results[folderPath] = {};
-    for (const f of files) {
-      results[folderPath][f.name] = '(could not analyze — re-run to retry)';
+  for (let i = 0; i < folders.length; i += BATCH_SIZE) {
+    const batch = folders.slice(i, i + BATCH_SIZE);
+    done += batch.length;
+    onProgress(done, folders.length, batch[0]);
+
+    for (const folderPath of batch) {
+      const files = fileTree[folderPath];
+      const folderHash = hashFolder(files);
+
+      if (cache[folderHash]) {
+        results[folderPath] = cache[folderHash];
+        continue;
+      }
+
+      try {
+        const responseText = await askGemini(apiKey, folderPath, files);
+        const parsed = parseAIResponse(responseText);
+        results[folderPath] = parsed;
+        cache[folderHash] = parsed;
+      } catch (err) {
+        console.error(`[CodeMap] Failed: "${folderPath}":`, err.message);
+        results[folderPath] = {};
+        for (const f of files) {
+          results[folderPath][f.name] = '(re-run to retry)';
+        }
+      }
     }
+
+    // One delay per batch instead of per folder
+    if (i + BATCH_SIZE < folders.length) await sleep(2000);
   }
 
-  if (done < folders.length) await sleep(2000);
-}
   saveCache();
   return results;
 }
