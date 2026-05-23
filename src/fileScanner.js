@@ -61,8 +61,8 @@ async function scanWorkspace(rootPath, config) {
         try {
           content = fs.readFileSync(fullPath, 'utf8');
           // Trim to first 3000 chars — enough for AI to understand purpose
-          if (content.length > 3000) {
-            content = content.slice(0, 3000) + '\n... (truncated)';
+          if (content.length > 1500) {
+            content = content.slice(0, 1500) + '\n... (truncated)';
           }
         } catch {
           continue; // skip binary or unreadable files

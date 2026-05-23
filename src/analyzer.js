@@ -100,7 +100,7 @@ async function analyzeWithAI(fileTree, apiKey, onProgress, rootPath) {
     // Wait 4 seconds between Gemini calls to stay under free tier rate limit (15 rpm)
     // Skip delay on last folder
     if (done < folders.length) {
-      await sleep(4000);
+      await sleep(1000);
     }
   }
 
