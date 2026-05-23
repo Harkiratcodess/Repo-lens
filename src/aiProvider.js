@@ -5,12 +5,19 @@ async function askGemini(apiKey, folderPath, files) {
     `### ${f.name}\n\`\`\`\n${f.content}\n\`\`\``
   ).join('\n\n');
 
-  const prompt = `Analyze these files in folder "${folderPath}". For each file write one sentence about what it does.
-Output format strictly:
-FILE: filename.ext | PURPOSE: one sentence
+  const prompt = `Analyze these source code files in folder "${folderPath}". 
 
+For EACH file, respond with EXACTLY this format on a new line:
+FILE: filename.ext | PURPOSE: one sentence description
+
+Rules:
+- One line per file
+- Never skip a file
+- No extra text, no headers, no numbering
+- Just the FILE: ... | PURPOSE: ... lines
+
+Files to analyze:
 ${fileList}`;
-
   const body = JSON.stringify({
     model: 'llama-3.1-8b-instant',
     messages: [{ role: 'user', content: prompt }],

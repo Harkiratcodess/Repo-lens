@@ -47,12 +47,24 @@ function parseAIResponse(responseText) {
   const lines = responseText.split('\n');
 
   for (const line of lines) {
-    // Matches: FILE: something.js | PURPOSE: description
-    const match = line.match(/FILE:\s*(.+?)\s*\|\s*PURPOSE:\s*(.+)/i);
-    if (match) {
-      const filename = match[1].trim();
-      const purpose = match[2].trim();
-      result[filename] = purpose;
+    // Try strict format first: FILE: name | PURPOSE: desc
+    const strict = line.match(/FILE:\s*(.+?)\s*\|\s*PURPOSE:\s*(.+)/i);
+    if (strict) {
+      result[strict[1].trim()] = strict[2].trim();
+      continue;
+    }
+
+    // Try loose format: **filename.ext** — description
+    const loose = line.match(/\*\*(.+?\.\w+)\*\*\s*[—\-:]\s*(.+)/);
+    if (loose) {
+      result[loose[1].trim()] = loose[2].trim();
+      continue;
+    }
+
+    // Try: `filename.ext` - description
+    const backtick = line.match(/`(.+?\.\w+)`\s*[—\-:]\s*(.+)/);
+    if (backtick) {
+      result[backtick[1].trim()] = backtick[2].trim();
     }
   }
   return result;
@@ -69,41 +81,32 @@ async function analyzeWithAI(fileTree, apiKey, onProgress, rootPath) {
   const folders = Object.keys(fileTree);
   const results = {}; // { folderPath -> { fileName -> summary } }
   let done = 0;
+for (const folderPath of folders) {
+  const files = fileTree[folderPath];
+  done++;
+  onProgress(done, folders.length, folderPath);
 
-  for (const folderPath of folders) {
-    const files = fileTree[folderPath];
-    done++;
-    onProgress(done, folders.length, folderPath);
+  const folderHash = hashFolder(files);
+  if (cache[folderHash]) {
+    results[folderPath] = cache[folderHash];
+    continue;
+  }
 
-    // Check cache first
-    const folderHash = hashFolder(files);
-    if (cache[folderHash]) {
-      results[folderPath] = cache[folderHash];
-      continue; // no API call needed
-    }
-
-    // Call Gemini
-    try {
-      const responseText = await askGemini(apiKey, folderPath, files);
-      const parsed = parseAIResponse(responseText);
-      results[folderPath] = parsed;
-      cache[folderHash] = parsed; // store in cache for next time
-    } catch (err) {
-      // Don't crash the whole analysis if one folder fails
-      console.error(`[CodeMap] Failed to analyze folder "${folderPath}":`, err.message);
-      results[folderPath] = {};
-      for (const f of files) {
-        results[folderPath][f.name] = '(analysis failed for this file)';
-      }
-    }
-
-    // Wait 4 seconds between Gemini calls to stay under free tier rate limit (15 rpm)
-    // Skip delay on last folder
-    if (done < folders.length) {
-      await sleep(1000);
+  try {
+    const responseText = await askGemini(apiKey, folderPath, files);
+    const parsed = parseAIResponse(responseText);
+    results[folderPath] = parsed;
+    cache[folderHash] = parsed;
+  } catch (err) {
+    console.error(`[CodeMap] Failed: "${folderPath}":`, err.message);
+    results[folderPath] = {};
+    for (const f of files) {
+      results[folderPath][f.name] = '(could not analyze — re-run to retry)';
     }
   }
 
+  if (done < folders.length) await sleep(2000);
+}
   saveCache();
   return results;
 }
