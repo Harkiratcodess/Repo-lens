@@ -104,14 +104,28 @@ async function analyzeWithAI(fileTree, apiKey, onProgress, rootPath) {
         const parsed = parseAIResponse(responseText);
         results[folderPath] = parsed;
         cache[folderHash] = parsed; // ✅ only caches on success
-      } catch (err) {
+   } catch (err) {
+  // If rate limited, wait the exact time Groq tells us then retry
+  if (err.waitSeconds) {
+    console.log(`[RepoLens] Rate limited, waiting ${err.waitSeconds}s...`);
+    await sleep(err.waitSeconds * 1000);
+
+    try {
+      const responseText = await askGemini(apiKey, folderPath, files);
+      const parsed = parseAIResponse(responseText);
+      results[folderPath] = parsed;
+      cache[folderHash] = parsed;
+      continue;
+    } catch (retryErr) {
+      console.error(`[CodeMap] Retry failed: "${folderPath}"`);
+    }
+  }
+
   console.error(`[CodeMap] Failed: "${folderPath}":`, err.message);
   results[folderPath] = {};
   for (const f of files) {
     results[folderPath][f.name] = '(re-run to retry)';
   }
-  // DON'T cache failures — so next run retries them
-  // cache[folderHash] = parsed; <- this was the bug
 }
     }
 

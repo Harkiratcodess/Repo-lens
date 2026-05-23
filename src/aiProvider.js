@@ -2,8 +2,8 @@ const https = require('https');
 
 async function askGemini(apiKey, folderPath, files) {
   const fileList = files.map(f =>
-    `### ${f.name}\n\`\`\`\n${f.content}\n\`\`\``
-  ).join('\n\n');
+  `### ${f.name}\n\`\`\`\n${f.content.slice(0, 800)}\n\`\`\``
+).join('\n\n');
 
   const prompt = `Analyze these source code files in folder "${folderPath}". 
 
@@ -19,7 +19,7 @@ Rules:
 Files to analyze:
 ${fileList}`;
   const body = JSON.stringify({
-    model: 'llama-3.1-8b-instant',
+   model: 'llama-3.3-70b-versatile',
     messages: [{ role: 'user', content: prompt }],
     max_tokens: 1024,
     temperature: 0.2,
@@ -38,13 +38,27 @@ ${fileList}`;
     }, (res) => {
       let data = '';
       res.on('data', chunk => data += chunk);
-      res.on('end', () => {
-        try {
-          const json = JSON.parse(data);
-          if (json.error) { reject(new Error(json.error.message)); return; }
-          resolve(json.choices?.[0]?.message?.content || '');
-        } catch (e) { reject(new Error('Failed to parse response')); }
-      });
+   res.on('end', () => {
+  try {
+    const json = JSON.parse(data);
+    if (json.error) { 
+      console.error('[RepoLens API Error]', JSON.stringify(json.error));
+      
+      // Extract wait time from error message if rate limited
+      const waitMatch = json.error.message?.match(/try again in (\d+\.?\d*)s/);
+      const waitSeconds = waitMatch ? parseFloat(waitMatch[1]) + 1 : 10;
+      
+      const err = new Error(json.error.message);
+      err.waitSeconds = waitSeconds;
+      reject(err); 
+      return; 
+    }
+    resolve(json.choices?.[0]?.message?.content || '');
+  } catch (e) { 
+    console.error('[RepoLens Parse Error]', data);
+    reject(new Error('Failed to parse response')); 
+  }
+});
     });
     req.on('error', reject);
     req.write(body);
